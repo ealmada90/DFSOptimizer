@@ -1,0 +1,5 @@
+setup.py
+DFSOptimizer.egg-info/PKG-INFO
+DFSOptimizer.egg-info/SOURCES.txt
+DFSOptimizer.egg-info/dependency_links.txt
+DFSOptimizer.egg-info/top_level.txt
