@@ -1,11 +1,11 @@
-//
+// swift-tools-version: 5.9
+
 //  File.swift
 //  DFSOptimizerPackage
 //
 //  Created by Elioth Almada on 1/16/24.
 //
 
-// swift-tools-version: 5.9
 import PackageDescription
 
 let package = Package(
