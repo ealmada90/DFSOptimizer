@@ -14,6 +14,7 @@ let package = Package(
         ],
         dependencies: [],
         targets: [
-            .target(name: "DFSOptimizer")
+            .target(name: "DFSOptimizer",
+                    path: "Sources")
         ]
 )
