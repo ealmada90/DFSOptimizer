@@ -1,4 +1,5 @@
-//
+//  swift-tools-version:5.9
+
 //  Package.swift
 //  LineStarForYahoo
 //
@@ -6,7 +7,7 @@
 //  Copyright © 2024 fantasysportsco. All rights reserved.
 //
 
-// swift-tools-version:5.5
+
 import PackageDescription
 
 let package = Package(
