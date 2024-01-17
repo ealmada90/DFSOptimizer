@@ -2,6 +2,7 @@ import csv
 from DFSPlayer import *
 from pulp import *
 
+
 #declare variables
 lineupSlots = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[]}
 positionRequirements = ["PG", "PG", "SG", "SG", "SF", "SF", "PF", "PF", "C"]
