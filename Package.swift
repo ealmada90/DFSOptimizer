@@ -1,14 +1,21 @@
-// swift-tools-version:5.5
+// swift-tools-version: 5.9
+//
+//  File.swift
+//  DFSOptimizerPackage
+//
+//  Created by Elioth Almada on 1/16/24.
+//
+
 import PackageDescription
 
 let package = Package(
-    name: "DFSOptimizer",
-    dependencies: [
-        .package(url: "https://github.com/ealmada90/DFSOptimizer.git", from: "0.1"),
-    ],
-    targets: [
-        .executableTarget(
-            name: "DFSOptimizer",
-            dependencies: ["DFSOptimizer"]),
-    ]
+        name: "DFSOptimizer",
+        products: [
+            .library(name: "DFSOptimizer", targets: ["DFSOptimizer"])
+        ],
+        dependencies: [],
+        targets: [
+            .target(name: "DFSOptimizer",
+                    path: "Sources")
+        ]
 )
