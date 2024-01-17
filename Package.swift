@@ -13,10 +13,12 @@ import PackageDescription
 let package = Package(
         name: "OptimizerApp",
         products: [
-            .library(name: "OptimizerApp", targets: ["Optimizer"])
+            .library(name: "OptimizerApp", targets: ["Optimizer", "Optimizer2"])
         ],
         dependencies: [],
         targets: [
+            .target(name: "Optimizer2",
+                    path: "Sources")
             .target(name: "Optimizer",
                     path: "Sources")
         ]
