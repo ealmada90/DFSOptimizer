@@ -1,6 +1,8 @@
 import csv
-from DFSPlayer import *
+from Objects.DFSPlayer import *
+from Objects.OptimizerSettings import *
 from pulp import *
+import json
 
 
 #declare variables
@@ -12,14 +14,15 @@ def create_player_from_row(row):
     positions = row['Position'].split("/")
     return DFSPlayer(int(row['\ufeffLineStarId']), row['Name'], row['Team'], positions, int(row['Salary']), float(row['Projected']))
 
-def read_csv(file_path):
+def initPlayersDictionary(list):
     players = {}
-    with open(file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            player = create_player_from_row(row=row)
-            if(player.projection > 0):
-                players[player.id] = player
+    for p in list:
+        s = json.dumps(p)
+        j = json.loads(s)
+        player = DFSPlayer(**j)
+        if(player.projection > 0):
+            player.positions = player.positions.split("/")
+            players[player.id] = player
     return players
 
 def initPlayerNames(list):
@@ -56,29 +59,53 @@ def initTeamList(list):
         
     return teamList
     
+ordered_positions = ['PG', 'PG', 'SG', 'SG', 'SF', 'SF', 'PF', 'PF', 'C']
+def orderLineup(lineup, dictionary):
+    orderedLineup = []
+    for index in range(9):
+        for playerId in lineup:
+            if(dictionary[playerId] == ordered_positions[index] and playerId not in orderedLineup):
+                orderedLineup.append(playerId)
+
+                break
+
+    return orderedLineup
+
+def initOptimizerSettings(settings):
+        s = json.dumps(settings)
+        j = json.loads(s)
+        settings = OptimizerSettings(**j)
+        return settings
 
 #run program
-if __name__ == "__main__":
+def optimizerLineups(playerList, optimizer_settings):
 
-    #get player lists
-    file_path = 'players.csv'
-    players = read_csv(file_path)
-    ###names = initPlayerNames(list = players)
-    ###players = initPlayerList(list=players)
-    #init lineup containers
-    ##initPlayerContainers(list=players)
-
+   
+    players = initPlayersDictionary(playerList)
+    settings = initOptimizerSettings(settings=optimizer_settings)
     teams = initTeamList(list=players)
     
+
     
     # Variable constraint
-    max_budget = 60000
-    max_players_from_any_team = 4
-    num_lineups = 20
-    unique_players = 1
-    Global_Ownership = 0.5
+    max_budget = settings.budget
+    max_players_from_any_team = settings.max_players_per_team
+    num_lineups = settings.num_lineups
+    unique_players = settings.unique_players
+    Global_Ownership = settings.max_exposure / 100
+
+   
 
     print("\n")
+    print(f"Optimizing {settings.num_lineups} lineups")
+    print(f"Pool size: {len(players.keys())}")
+    print(f"Max Budget: {settings.budget}")
+    print(f"Min Budget: {settings.min_budget}")
+    print(f"Max per Team: {settings.max_players_per_team}")
+    print(f"Max Exposure: {settings.max_exposure}")
+    print(f"Max Budget: {settings.unique_players}")
+
+    print("\nStarting Optimization")
     lineups = []
     for lineup_num in range(num_lineups):
         # Create a linear programming problem
@@ -125,27 +152,20 @@ if __name__ == "__main__":
         prob.solve(PULP_CBC_CMD(msg=0))
 
         # Print the results for each lineup
+        positionDictionary = {}
         lineup = []
-        print("Status:", prob.status)
-        print(f"Optimal Lineup {lineup_num + 1}:")
-        totalPoints = 0
-        totalSalary = 0
-        totalCount = 0
+        print(f"Optimized Lineup {lineup_num + 1}:")       
         for playerId in player_vars:
-            if player_vars[playerId].value() == 1:
-                print(f"{players[playerId].name} - {players[playerId].positions}")
-                totalPoints = totalPoints + players[playerId].projection
-                totalSalary = totalSalary + players[playerId].salary
-                totalCount = totalCount + 1
-                lineup.append(playerId)
-                players[playerId].ownership += 1
+            for position in players[playerId].positions:
+                if position_vars[playerId, position].value() == 1:
+                    lineup.append(playerId)
+                    positionDictionary[playerId] = position
+                    players[playerId].ownership += 1
 
-        print("Total Projection: ", totalPoints, " Total Salary:  $", totalSalary, " Count: ", totalCount, "\n")
-        lineups.append(lineup)
-    
-    print("Ownership report")
-    for playerId,player in players.items():
-        if(player.ownership > 0):
-            print(player.name + " - " + f"{float(100 * (player.ownership/num_lineups))}" + "%")
+        
+        
+        orderedLineup = orderLineup(lineup=lineup,dictionary=positionDictionary)
+        lineups.append(orderedLineup)
 
 
+    return lineups
