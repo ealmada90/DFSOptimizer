@@ -3,9 +3,9 @@ class DFSPlayer:
         self.name = name
         self.team = team
         self.positions = positions
-        self.salary = salary
-        self.projection = projection
-        self.id = id
+        self.salary = int(salary)
+        self.projection = float(projection)
+        self.id = int(id)
         self.ownership = 0
 
     def __str__(self):
